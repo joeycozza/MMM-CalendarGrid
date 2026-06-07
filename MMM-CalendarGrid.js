@@ -25,6 +25,7 @@ Module.register("MMM-CalendarGrid", {
       this.events = payload;
       this.loaded = true;
       this.updateDom(300);
+      this.sendNotification("CALENDAR_EVENTS", payload);
     }
   },
 
@@ -118,6 +119,9 @@ Module.register("MMM-CalendarGrid", {
       date.getMonth() === now.getMonth() &&
       date.getDate() === now.getDate();
     if (isToday) el.classList.add("today");
+
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    if (currentMonth && date < startOfToday) el.classList.add("past");
 
     // Date number
     const dateNum = document.createElement("div");

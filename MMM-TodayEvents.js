@@ -14,8 +14,8 @@ Module.register("MMM-TodayEvents", {
     return ["MMM-TodayEvents.css"];
   },
 
-  // Listens for the broadcast from MMM-CalendarGrid's node_helper
-  socketNotificationReceived(notification, payload) {
+  // Listens for the frontend broadcast from MMM-CalendarGrid
+  notificationReceived(notification, payload) {
     if (notification === "CALENDAR_EVENTS") {
       this.events = payload;
       this.loaded = true;
