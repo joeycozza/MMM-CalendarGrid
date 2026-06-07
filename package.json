@@ -1,0 +1,12 @@
+{
+  "name": "MMM-CalendarGrid",
+  "version": "1.0.0",
+  "description": "MagicMirror2 module: responsive monthly calendar grid + today's events sidebar",
+  "main": "MMM-CalendarGrid.js",
+  "keywords": ["MagicMirror2", "calendar", "ical"],
+  "author": "Joey Cozza",
+  "license": "MIT",
+  "dependencies": {
+    "node-ical": "^0.26.1"
+  }
+}

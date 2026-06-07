@@ -1,0 +1,126 @@
+.mmm-cg-wrapper {
+  width: 100%;
+  font-family: inherit;
+  color: #e0e0e0;
+}
+
+.mmm-cg-loading {
+  text-align: center;
+  padding: 2em;
+  opacity: 0.5;
+  font-size: clamp(12px, 1.2vw, 18px);
+}
+
+/* Month/year title */
+.mmm-cg-header {
+  font-size: clamp(14px, 1.6vw, 24px);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding-bottom: 0.4em;
+  color: #fff;
+}
+
+/* Day-of-week label row */
+.mmm-cg-day-labels {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 2px;
+}
+
+.mmm-cg-day-label {
+  text-align: center;
+  font-size: clamp(9px, 0.9vw, 14px);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #888;
+  padding: 4px 2px;
+}
+
+/* Calendar grid */
+.mmm-cg-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  /* Rows stretch to fill available height */
+  grid-auto-rows: minmax(clamp(60px, 12vh, 160px), 1fr);
+  gap: 1px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* Individual day cell */
+.mmm-cg-cell {
+  background: rgba(255, 255, 255, 0.03);
+  padding: clamp(3px, 0.4vw, 7px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mmm-cg-cell.other-month {
+  background: transparent;
+  opacity: 0.35;
+}
+
+.mmm-cg-cell.today .mmm-cg-date-num {
+  background: #5b8dee;
+  color: #fff;
+  border-radius: 50%;
+  width: clamp(18px, 1.8vw, 28px);
+  height: clamp(18px, 1.8vw, 28px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Date number */
+.mmm-cg-date-num {
+  font-size: clamp(10px, 1.1vw, 16px);
+  font-weight: 600;
+  color: #ccc;
+  line-height: 1;
+  margin-bottom: 2px;
+  min-width: clamp(18px, 1.8vw, 28px);
+  min-height: clamp(18px, 1.8vw, 28px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Event pill */
+.mmm-cg-pill {
+  display: flex;
+  align-items: center;
+  font-size: clamp(9px, 0.85vw, 13px);
+  padding: 1px clamp(3px, 0.4vw, 6px);
+  border-radius: 3px;
+  border-left: 3px solid transparent;
+  overflow: hidden;
+  flex-shrink: 0;
+  line-height: 1.4;
+}
+
+.mmm-cg-pill.all-day {
+  font-weight: 600;
+}
+
+.mmm-cg-pill-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #e8e8e8;
+}
+
+/* Overflow label */
+.mmm-cg-more {
+  font-size: clamp(8px, 0.75vw, 11px);
+  color: #777;
+  padding-left: 4px;
+  margin-top: 1px;
+}

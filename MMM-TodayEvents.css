@@ -1,0 +1,62 @@
+.mmm-te-wrapper {
+  width: 100%;
+  font-family: inherit;
+  color: #e0e0e0;
+  padding: 0 4px;
+}
+
+.mmm-te-loading {
+  opacity: 0.4;
+  font-size: clamp(12px, 1.5vw, 20px);
+}
+
+/* Section title */
+.mmm-te-header {
+  font-size: clamp(11px, 1.1vw, 16px);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #fff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  padding-bottom: 0.5em;
+  margin-bottom: 0.6em;
+}
+
+.mmm-te-empty {
+  font-size: clamp(12px, 1.2vw, 18px);
+  opacity: 0.4;
+  padding-top: 0.5em;
+}
+
+/* Event list */
+.mmm-te-list {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(8px, 1vh, 18px);
+}
+
+/* Individual event */
+.mmm-te-event {
+  border-left: 3px solid #888;
+  padding-left: clamp(6px, 0.7vw, 12px);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mmm-te-time {
+  font-size: clamp(10px, 1vw, 15px);
+  color: #aaa;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.mmm-te-title {
+  font-size: clamp(14px, 1.6vw, 26px);
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.2;
+  /* Allow wrapping for long event names */
+  word-break: break-word;
+}
