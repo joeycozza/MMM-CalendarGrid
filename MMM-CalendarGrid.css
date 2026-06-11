@@ -218,13 +218,13 @@
 }
 
 .mmm-cg-agenda-date {
-  font-size: clamp(12px, 1.2vw, 20px);
-  font-weight: 700;
+  font-size: clamp(18px, 2.1vw, 34px);
+  font-weight: 800;
   color: #fff;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-  padding-bottom: 0.3em;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+  padding-bottom: 0.25em;
 }
 
 .mmm-cg-empty {
