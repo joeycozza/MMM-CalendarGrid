@@ -241,13 +241,23 @@
   word-break: break-word;
 }
 
-/* 3day has 3 wide columns — give it noticeably larger text (5day stays tighter) */
+/* Day cards get larger text than the shared default. 3day has 3 wide
+   columns so it goes biggest; 5day is bumped too but stays a bit smaller
+   to fit its 5 columns. */
 .mmm-cg-3day .mmm-cg-card-time {
-  font-size: clamp(12px, 1.4vw, 22px);
+  font-size: clamp(14px, 1.8vw, 28px);
 }
 
 .mmm-cg-3day .mmm-cg-card-title {
-  font-size: clamp(20px, 2.3vw, 38px);
+  font-size: clamp(24px, 2.9vw, 48px);
+}
+
+.mmm-cg-5day .mmm-cg-card-time {
+  font-size: clamp(12px, 1.3vw, 21px);
+}
+
+.mmm-cg-5day .mmm-cg-card-title {
+  font-size: clamp(17px, 2vw, 34px);
 }
 
 /* ── View: agenda (vertical grouped list) ────────────────────────────── */
