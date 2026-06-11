@@ -103,6 +103,16 @@ module.exports = NodeHelper.create({
       (typeof event.start === "object" && event.start.dateOnly) ||
       (!event.start.getHours && !event.start.getMinutes);
 
+    if (allDay) {
+      // node-ical stores DATE-only values as UTC midnight. Re-anchor to local
+      // midnight so the frontend's local Date getters land on the correct day.
+      // ICS DTEND for all-day events is exclusive (next day), so subtract 1ms
+      // to make it the last moment of the actual final day.
+      start = new Date(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate());
+      const endLocal = new Date(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate());
+      end = new Date(endLocal.getTime() - 1);
+    }
+
     return {
       id: event.uid || `${cal.name}-${start.toISOString()}`,
       title: event.summary || "(No title)",
