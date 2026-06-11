@@ -103,14 +103,19 @@ module.exports = NodeHelper.create({
       (typeof event.start === "object" && event.start.dateOnly) ||
       (!event.start.getHours && !event.start.getMinutes);
 
+    console.log(`[CG-DEBUG normalizeEvent] "${event.summary}" allDay=${allDay} dateOnly=${event.start.dateOnly} rawStart=${start} rawEnd=${end}`);
+
     if (allDay) {
       // node-ical stores DATE-only values as UTC midnight. Re-anchor to local
       // midnight so the frontend's local Date getters land on the correct day.
       // ICS DTEND for all-day events is exclusive (next day), so subtract 1ms
       // to make it the last moment of the actual final day.
+      const origStart = start;
+      const origEnd = end;
       start = new Date(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate());
       const endLocal = new Date(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate());
       end = new Date(endLocal.getTime() - 1);
+      console.log(`[CG-DEBUG normalizeEvent] allDay re-anchor: ${origStart.toISOString()} → ${start.toISOString()} | ${origEnd.toISOString()} → ${end.toISOString()}`);
     }
 
     return {

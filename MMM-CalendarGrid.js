@@ -411,11 +411,16 @@ Module.register("MMM-CalendarGrid", {
     const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
     const dayEnd   = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
 
-    return this.events.filter((ev) => {
+    const matches = this.events.filter((ev) => {
       const start = new Date(ev.start);
       const end   = new Date(ev.end);
-      return start <= dayEnd && end >= dayStart;
+      const hit = start <= dayEnd && end >= dayStart;
+      if (ev.allDay) {
+        console.log(`[CG-DEBUG getEventsForDay] day=${date.toDateString()} | "${ev.title}" start=${ev.start} end=${ev.end} | parsed start=${start.toLocaleString()} end=${end.toLocaleString()} | dayStart=${dayStart.toLocaleString()} dayEnd=${dayEnd.toLocaleString()} | match=${hit}`);
+      }
+      return hit;
     });
+    return matches;
   },
 
   buildEventPill(event) {
