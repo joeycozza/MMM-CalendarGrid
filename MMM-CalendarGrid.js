@@ -1,6 +1,7 @@
 Module.register("MMM-CalendarGrid", {
   defaults: {
     calendars: [],
+    theme: "dark",                          // "dark" | "light"
     updateInterval: 30 * 60 * 1000,
     maxEventsPerDay: 5,
     startOnMonday: false,
@@ -72,6 +73,7 @@ Module.register("MMM-CalendarGrid", {
     const now = new Date();
     const view = this.getActiveView();
     wrapper.classList.add("mmm-cg-" + view); // CSS hook — always a leaf view, never "rotate"
+    wrapper.classList.add("mmm-cg-theme-" + (this.config.theme === "light" ? "light" : "dark"));
 
     switch (view) {
       case "week":   this.renderWeek(wrapper, now);   break;
@@ -414,19 +416,20 @@ Module.register("MMM-CalendarGrid", {
     pill.className = "mmm-cg-pill";
     if (event.allDay) pill.classList.add("all-day");
 
-    // Left color bar
-    pill.style.borderLeftColor = event.color;
-    pill.style.backgroundColor = this.hexToRgba(event.color, 0.18);
-
-    const start = new Date(event.start);
-    let label = "";
-    if (!event.allDay) {
-      label = this.formatTime(start) + " · ";
-    }
+    // Solid fill with auto-contrast text so pills read as scannable chips
+    pill.style.backgroundColor = event.color;
+    pill.style.color = this.getContrastText(event.color);
 
     const text = document.createElement("span");
     text.className = "mmm-cg-pill-text";
-    text.textContent = label + event.title;
+
+    if (!event.allDay) {
+      const time = document.createElement("span");
+      time.className = "mmm-cg-pill-time";
+      time.textContent = this.formatTime(new Date(event.start)) + " · ";
+      text.appendChild(time);
+    }
+    text.appendChild(document.createTextNode(event.title));
     pill.appendChild(text);
 
     return pill;
@@ -446,5 +449,15 @@ Module.register("MMM-CalendarGrid", {
     const g = parseInt(clean.substring(2, 4), 16);
     const b = parseInt(clean.substring(4, 6), 16);
     return `rgba(${r},${g},${b},${alpha})`;
+  },
+
+  // Pick black or white text for legibility against a solid hex fill (YIQ luminance).
+  getContrastText(hex) {
+    const clean = hex.replace("#", "");
+    const r = parseInt(clean.substring(0, 2), 16);
+    const g = parseInt(clean.substring(2, 4), 16);
+    const b = parseInt(clean.substring(4, 6), 16);
+    const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+    return yiq > 140 ? "#1a1a1a" : "#ffffff";
   },
 });

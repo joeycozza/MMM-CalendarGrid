@@ -1,8 +1,35 @@
 .mmm-te-wrapper {
   width: 100%;
   font-family: inherit;
-  color: #e0e0e0;
+  color: var(--te-text);
   padding: 0 4px;
+  background: var(--te-surface);
+}
+
+/* Light theme paints a self-contained panel so dark text stays readable
+   against the mirror's black background. */
+.mmm-te-wrapper.mmm-te-theme-light {
+  padding: clamp(8px, 1vw, 16px) clamp(10px, 1.2vw, 18px);
+  border-radius: 10px;
+}
+
+/* ── Theme variables (mirrors MMM-CalendarGrid) ──────────────────────── */
+.mmm-te-wrapper.mmm-te-theme-dark {
+  --te-surface: transparent;
+  --te-text: #f0f0f0;
+  --te-text-strong: #ffffff;
+  --te-text-muted: #9a9a9a;
+  --te-divider: rgba(255, 255, 255, 0.18);
+  --te-default-bar: #888888;
+}
+
+.mmm-te-wrapper.mmm-te-theme-light {
+  --te-surface: #f4f4f4;
+  --te-text: #1a1a1a;
+  --te-text-strong: #000000;
+  --te-text-muted: #555555;
+  --te-divider: rgba(0, 0, 0, 0.15);
+  --te-default-bar: #aaaaaa;
 }
 
 .mmm-te-loading {
@@ -16,8 +43,8 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: #fff;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--te-text-strong);
+  border-bottom: 1px solid var(--te-divider);
   padding-bottom: 0.5em;
   margin-bottom: 0.6em;
 }
@@ -37,7 +64,7 @@
 
 /* Individual event */
 .mmm-te-event {
-  border-left: 3px solid #888;
+  border-left: 3px solid var(--te-default-bar);
   padding-left: clamp(6px, 0.7vw, 12px);
   display: flex;
   flex-direction: column;
@@ -46,7 +73,7 @@
 
 .mmm-te-time {
   font-size: clamp(10px, 1vw, 15px);
-  color: #aaa;
+  color: var(--te-text-muted);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -55,7 +82,7 @@
 .mmm-te-title {
   font-size: clamp(14px, 1.6vw, 26px);
   font-weight: 600;
-  color: #fff;
+  color: var(--te-text-strong);
   line-height: 1.2;
   /* Allow wrapping for long event names */
   word-break: break-word;
