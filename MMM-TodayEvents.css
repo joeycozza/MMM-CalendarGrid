@@ -1,35 +1,16 @@
 .mmm-te-wrapper {
   width: 100%;
   font-family: inherit;
-  color: var(--te-text);
   padding: 0 4px;
-  background: var(--te-surface);
-}
 
-/* Light theme paints a self-contained panel so dark text stays readable
-   against the mirror's black background. */
-.mmm-te-wrapper.mmm-te-theme-light {
-  padding: clamp(8px, 1vw, 16px) clamp(10px, 1.2vw, 18px);
-  border-radius: 10px;
-}
-
-/* ── Theme variables (mirrors MMM-CalendarGrid) ──────────────────────── */
-.mmm-te-wrapper.mmm-te-theme-dark {
-  --te-surface: transparent;
+  /* Override any of these in your own CSS to fine-tune the palette. */
   --te-text: #f0f0f0;
   --te-text-strong: #ffffff;
   --te-text-muted: #9a9a9a;
   --te-divider: rgba(255, 255, 255, 0.18);
   --te-default-bar: #888888;
-}
 
-.mmm-te-wrapper.mmm-te-theme-light {
-  --te-surface: #f4f4f4;
-  --te-text: #1a1a1a;
-  --te-text-strong: #000000;
-  --te-text-muted: #555555;
-  --te-divider: rgba(0, 0, 0, 0.15);
-  --te-default-bar: #aaaaaa;
+  color: var(--te-text);
 }
 
 .mmm-te-loading {

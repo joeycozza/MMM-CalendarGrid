@@ -4,22 +4,9 @@
   display: flex;
   flex-direction: column;
   font-family: inherit;
-  color: var(--cg-text);
-  background: var(--cg-surface);
-}
 
-/* Light theme paints a self-contained panel so the header/labels (dark text)
-   stay readable against the mirror's black background. */
-.mmm-cg-wrapper.mmm-cg-theme-light {
-  padding: clamp(10px, 1.2vw, 22px);
-  border-radius: 10px;
-}
-
-/* ── Theme variables ─────────────────────────────────────────────────────
-   All colors below are driven by these custom properties. Override any of
-   them in your own CSS to fine-tune; or pick a theme via `theme:` in config. */
-.mmm-cg-wrapper.mmm-cg-theme-dark {
-  --cg-surface: transparent;
+  /* Colors are driven by these custom properties — override any of them in
+     your own CSS to fine-tune the palette. */
   --cg-text: #f0f0f0;
   --cg-text-strong: #ffffff;
   --cg-text-muted: #9a9a9a;
@@ -31,21 +18,8 @@
   --cg-today-text: #ffffff;
   --cg-today-card-bg: rgba(91, 141, 238, 0.16);
   --cg-card-default-bar: #888888;
-}
 
-.mmm-cg-wrapper.mmm-cg-theme-light {
-  --cg-surface: #f4f4f4;
-  --cg-text: #1a1a1a;
-  --cg-text-strong: #000000;
-  --cg-text-muted: #555555;
-  --cg-text-faint: #888888;
-  --cg-cell-bg: #ffffff;
-  --cg-grid-line: rgba(0, 0, 0, 0.12);
-  --cg-divider: rgba(0, 0, 0, 0.15);
-  --cg-today-bg: #2f6fed;
-  --cg-today-text: #ffffff;
-  --cg-today-card-bg: rgba(47, 111, 237, 0.12);
-  --cg-card-default-bar: #aaaaaa;
+  color: var(--cg-text);
 }
 
 .mmm-cg-loading {
@@ -224,13 +198,31 @@
   padding-bottom: 0.3em;
 }
 
-/* Large event row — shared by 3day cards and the agenda list */
+/* Large event row — shared by 3day/5day cards and the agenda list.
+   Default (agenda): colored left bar. `.filled` (cards): solid color block,
+   with background-color & text color set inline for auto-contrast. */
 .mmm-cg-card-event {
   border-left: 3px solid var(--cg-card-default-bar);
   padding-left: clamp(6px, 0.7vw, 12px);
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+
+.mmm-cg-card-event.filled {
+  border-left: 0;
+  border-radius: 5px;
+  padding: clamp(4px, 0.7vh, 10px) clamp(8px, 0.8vw, 14px);
+}
+
+/* Filled rows inherit the inline auto-contrast color for both lines */
+.mmm-cg-card-event.filled .mmm-cg-card-time,
+.mmm-cg-card-event.filled .mmm-cg-card-title {
+  color: inherit;
+}
+
+.mmm-cg-card-event.filled .mmm-cg-card-time {
+  opacity: 0.85;
 }
 
 .mmm-cg-card-time {
@@ -247,6 +239,15 @@
   color: var(--cg-text-strong);
   line-height: 1.2;
   word-break: break-word;
+}
+
+/* 3day has 3 wide columns — give it noticeably larger text (5day stays tighter) */
+.mmm-cg-3day .mmm-cg-card-time {
+  font-size: clamp(12px, 1.4vw, 22px);
+}
+
+.mmm-cg-3day .mmm-cg-card-title {
+  font-size: clamp(20px, 2.3vw, 38px);
 }
 
 /* ── View: agenda (vertical grouped list) ────────────────────────────── */

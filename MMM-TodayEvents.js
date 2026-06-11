@@ -3,7 +3,6 @@ Module.register("MMM-TodayEvents", {
     title: "TODAY",
     maxEvents: 10,
     timeFormat: "h:mma",
-    theme: "dark",                          // "dark" | "light"
   },
 
   start() {
@@ -27,7 +26,6 @@ Module.register("MMM-TodayEvents", {
   getDom() {
     const wrapper = document.createElement("div");
     wrapper.className = "mmm-te-wrapper";
-    wrapper.classList.add("mmm-te-theme-" + (this.config.theme === "light" ? "light" : "dark"));
 
     if (!this.loaded) {
       wrapper.innerHTML = '<div class="mmm-te-loading">...</div>';

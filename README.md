@@ -7,9 +7,8 @@ Built for full CSS control and responsiveness — works on any screen size witho
 ## Features
 
 - **Multiple view modes** — `month`, `week`, `3day` (yesterday/today/tomorrow cards), `agenda` (next N days), and `2week`, with optional auto-rotation between them
-- Month grid with solid, color-filled event pills (text auto-contrasts black/white for legibility)
+- Solid, color-filled event pills and cards (text auto-contrasts black/white for legibility)
 - Per-calendar color coding
-- **Light and dark themes** via a single `theme` option, with all colors exposed as overridable CSS variables
 - All-day and timed events
 - Multi-day events shown as repeated pills in each spanned day
 - Static "+ X more" overflow label when a day exceeds `maxEventsPerDay`
@@ -72,7 +71,6 @@ Add **both** entries to `~/MagicMirror/config/config.js` inside the `modules: []
         name: "Work",
       },
     ],
-    theme: "dark",                    // "dark" or "light"
     updateInterval: 30 * 60 * 1000,  // 30 minutes in ms
     maxEventsPerDay: 5,               // shows "+X more" beyond this
     startOnMonday: false,             // true for Mon–Sun week layout
@@ -92,7 +90,6 @@ Add **both** entries to `~/MagicMirror/config/config.js` inside the `modules: []
   config: {
     title: "TODAY",     // header label
     maxEvents: 10,      // max events to list
-    theme: "dark",      // match MMM-CalendarGrid's theme
   },
 },
 ```
@@ -106,7 +103,6 @@ Add **both** entries to `~/MagicMirror/config/config.js` inside the `modules: []
 | Option | Type | Default | Description |
 |---|---|---|---|
 | `calendars` | Array | `[]` | Array of `{ url, color, name }` objects. `url` is a valid iCal/ICS URL. `color` is any CSS hex color. `name` is a display label. |
-| `theme` | String | `"dark"` | Color theme: `"dark"` (light text on the mirror's black background) or `"light"` (near-white day cells with dark text). See [CSS Customization](#css-customization) to fine-tune either theme. |
 | `updateInterval` | Number | `1800000` | How often to re-fetch feeds, in ms. Default is 30 minutes. |
 | `maxEventsPerDay` | Number | `5` | Max events shown per day before a "+ X more" label. Applies to `month`, `week`, `2week` day cells and the `3day` cards. (The `agenda` view uses `maxEventsAgenda` instead.) |
 | `startOnMonday` | Boolean | `false` | `true` = week starts Monday. `false` = week starts Sunday. Affects `month`, `week`, and `2week` views. |
@@ -123,7 +119,6 @@ Add **both** entries to `~/MagicMirror/config/config.js` inside the `modules: []
 |---|---|---|---|
 | `title` | String | `"TODAY"` | Header label displayed above the event list. |
 | `maxEvents` | Number | `10` | Maximum number of today's events to display. |
-| `theme` | String | `"dark"` | Color theme: `"dark"` or `"light"`. Match this to the `MMM-CalendarGrid` `theme` for a consistent look. |
 
 ---
 
@@ -191,24 +186,6 @@ different fixed `view` values (e.g. a `month` overview plus a `3day` close-up).
 
 ---
 
-## Themes
-
-Set `theme` to `"dark"` (default) or `"light"`. Events are rendered as **solid color-filled pills** with the text color auto-picked (black or white) for the best contrast against each calendar's color — so they stay legible in either theme. The light theme draws a self-contained light panel so it reads cleanly even on the mirror's black background.
-
-> The previews above use the **dark** theme. The same `month` view in **light**:
-
-| Dark | Light |
-|---|---|
-| ![Month, dark theme](screenshots/view-month.png) | ![Month, light theme](screenshots/view-month-light.png) |
-
-The `agenda` view in the light theme:
-
-![Agenda, light theme](screenshots/view-agenda-light.png)
-
-To match the look across both modules, set the same `theme` on `MMM-CalendarGrid` and `MMM-TodayEvents`. Individual colors are tunable via CSS variables — see below.
-
----
-
 ## CSS Customization
 
 All styles are in `MMM-CalendarGrid.css` and `MMM-TodayEvents.css`. Font sizes use `clamp(min, preferred, max)` so they scale automatically — adjust the values to tune for your screen size.
@@ -237,9 +214,10 @@ All styles are in `MMM-CalendarGrid.css` and `MMM-TodayEvents.css`. Font sizes u
 | `.mmm-cg-5day .mmm-cg-card-grid` | Overrides the card grid to 5 columns for the `5day` view |
 | `.mmm-cg-card` (`.today` / `.past`) | A single day card in the `3day` / `5day` views |
 | `.mmm-cg-card-header` | The day label inside a card (e.g. "Today · Jun 10") |
-| `.mmm-cg-card-event` | A large event row — used in both `3day` cards and the `agenda` list; `border-left-color` set inline per calendar color |
+| `.mmm-cg-card-event` | A large event row. In the `agenda` list it gets a colored `border-left`. In the `3day` / `5day` cards it also gets `.filled` — a solid color block (`background-color` + auto-contrast text `color` set inline), like the month pills. |
+| `.mmm-cg-card-event.filled` | The solid color-block variant used by the `3day` / `5day` cards |
 | `.mmm-cg-card-time` | Time label in a large event row (or "All day") |
-| `.mmm-cg-card-title` | Event title in a large event row |
+| `.mmm-cg-card-title` | Event title in a large event row. `3day` uses larger text (`.mmm-cg-3day` scope) than `5day`. |
 | `.mmm-cg-agenda-list` | The `agenda` view list container |
 | `.mmm-cg-agenda-day` | One day group in the agenda |
 | `.mmm-cg-agenda-date` | The day header in the agenda (e.g. "Today · Wed Jun 10") |
@@ -257,18 +235,17 @@ All styles are in `MMM-CalendarGrid.css` and `MMM-TodayEvents.css`. Font sizes u
 | `.mmm-te-title` | Event title in large text |
 | `.mmm-te-empty` | "No events today" message |
 
-### Theme color variables
+### Color variables
 
-Both themes are defined as CSS custom properties on the wrapper, so you can override any single color without touching the rest. The `theme` config option selects which set is active (`.mmm-cg-theme-dark` / `.mmm-cg-theme-light` on `MMM-CalendarGrid`, `.mmm-te-theme-dark` / `.mmm-te-theme-light` on `MMM-TodayEvents`). To tweak, add a rule in your own CSS, e.g.:
+The palette is defined as CSS custom properties on the wrapper, so you can override any single color without touching the rest. To tweak, add a rule in your own CSS, e.g.:
 
 ```css
-/* Warmer "today" highlight in the dark theme */
-.mmm-cg-wrapper.mmm-cg-theme-dark { --cg-today-bg: #e0663b; }
+/* Warmer "today" highlight */
+.mmm-cg-wrapper { --cg-today-bg: #e0663b; }
 ```
 
 | Variable (MMM-CalendarGrid) | Role |
 |---|---|
-| `--cg-surface` | Whole-module panel background (transparent in dark; light card in light theme) |
 | `--cg-text` | Base text color (date numbers, body) |
 | `--cg-text-strong` | Headers and titles |
 | `--cg-text-muted` | Day-of-week labels, time labels |
@@ -280,9 +257,9 @@ Both themes are defined as CSS custom properties on the wrapper, so you can over
 | `--cg-today-card-bg` | Today's card tint (3day / 5day) |
 | `--cg-card-default-bar` | Fallback left bar when an event has no color |
 
-`MMM-TodayEvents` exposes the parallel `--te-surface`, `--te-text`, `--te-text-strong`, `--te-text-muted`, `--te-divider`, and `--te-default-bar`.
+`MMM-TodayEvents` exposes the parallel `--te-text`, `--te-text-strong`, `--te-text-muted`, `--te-divider`, and `--te-default-bar`.
 
-> **Note:** event-pill fills come from each calendar's `color`, not from these variables, and pill text is auto-contrasted (black/white) against that fill — so pills stay readable in either theme.
+> **Note:** event-pill and card fills come from each calendar's `color`, not from these variables, and the text on them is auto-contrasted (black/white) against that fill — so they stay readable whatever color you pick.
 
 ---
 

@@ -1,7 +1,6 @@
 Module.register("MMM-CalendarGrid", {
   defaults: {
     calendars: [],
-    theme: "dark",                          // "dark" | "light"
     updateInterval: 30 * 60 * 1000,
     maxEventsPerDay: 5,
     startOnMonday: false,
@@ -73,7 +72,6 @@ Module.register("MMM-CalendarGrid", {
     const now = new Date();
     const view = this.getActiveView();
     wrapper.classList.add("mmm-cg-" + view); // CSS hook — always a leaf view, never "rotate"
-    wrapper.classList.add("mmm-cg-theme-" + (this.config.theme === "light" ? "light" : "dark"));
 
     switch (view) {
       case "week":   this.renderWeek(wrapper, now);   break;
@@ -240,7 +238,7 @@ Module.register("MMM-CalendarGrid", {
     const visible = dayEvents.slice(0, maxShow);
     const overflow = dayEvents.length - visible.length;
 
-    visible.forEach((event) => card.appendChild(this.buildEventRow(event)));
+    visible.forEach((event) => card.appendChild(this.buildEventRow(event, true)));
 
     if (overflow > 0) {
       const more = document.createElement("div");
@@ -252,11 +250,19 @@ Module.register("MMM-CalendarGrid", {
     return card;
   },
 
-  // Large time+title row, shared by 3day cards and the agenda list.
-  buildEventRow(event) {
+  // Large time+title row, shared by 3day/5day cards and the agenda list.
+  // `filled` makes the row a solid color block with auto-contrast text (cards);
+  // otherwise it gets a colored left bar (agenda).
+  buildEventRow(event, filled) {
     const row = document.createElement("div");
     row.className = "mmm-cg-card-event";
-    row.style.borderLeftColor = event.color;
+    if (filled) {
+      row.classList.add("filled");
+      row.style.backgroundColor = event.color;
+      row.style.color = this.getContrastText(event.color);
+    } else {
+      row.style.borderLeftColor = event.color;
+    }
 
     const time = document.createElement("div");
     time.className = "mmm-cg-card-time";
