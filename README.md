@@ -136,6 +136,31 @@ feed — switching is purely a layout change.
 | `"2week"` | This week plus next week — two rows of 7. A middle ground between week and month. |
 | `"rotate"` | Cycles through the views listed in `rotateViews`, switching every `rotateInterval` ms. |
 
+### What each view looks like
+
+> Previews rendered at 1280×860 with sample events. On your mirror the `clamp()`
+> font sizing and panel dimensions will scale to the region you place the module in.
+
+**`month`** — the full grid; today highlighted, past days dimmed, multi-day events span their cells.
+
+![Month view](screenshots/view-month.png)
+
+**`week`** — the current week as one tall row of 7 (header shows the date range).
+
+![Week view](screenshots/view-week.png)
+
+**`3day`** — Yesterday / Today / Tomorrow as large cards with big time + title rows.
+
+![3-day view](screenshots/view-3day.png)
+
+**`agenda`** — chronological list grouped by day, empty days skipped.
+
+![Agenda view](screenshots/view-agenda.png)
+
+**`2week`** — this week plus next week, two rows of 7.
+
+![Two-week view](screenshots/view-2week.png)
+
 **Rotation example** — cycle week → 3day → agenda, 20 seconds each:
 
 ```js
