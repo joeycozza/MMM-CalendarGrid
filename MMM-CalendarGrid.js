@@ -464,7 +464,7 @@ Module.register("MMM-CalendarGrid", {
   // reads well on it).
   eventColor(event) {
     const title = (event.title || "").trim().toLowerCase();
-    return title.startsWith("joey") ? event.color : "#c0392b";
+    return title.startsWith("joey") ? event.color : "#a02820";
   },
 
   // Pick black or white text for legibility against a solid hex fill (YIQ luminance).

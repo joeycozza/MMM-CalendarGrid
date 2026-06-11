@@ -105,6 +105,6 @@ Module.register("MMM-TodayEvents", {
   // their calendar color; everything else is shown in red.
   eventColor(event) {
     const title = (event.title || "").trim().toLowerCase();
-    return title.startsWith("joey") ? event.color : "#c0392b";
+    return title.startsWith("joey") ? event.color : "#a02820";
   },
 });

@@ -191,7 +191,7 @@ different fixed `view` values (e.g. a `month` overview plus a `3day` close-up).
 Event colors follow a title-based rule rather than only the calendar color:
 
 - If an event's **title starts with "joey"** (case-insensitive), it keeps its calendar `color`.
-- Every other event is shown in **red** (`#c0392b`), with white text for contrast.
+- Every other event is shown in **red** (`#a02820`), with white text for contrast.
 
 This applies everywhere events render color — month/week/2week pills, the `3day`/`5day` cards, the `agenda` list, and the `MMM-TodayEvents` sidebar. The rule is hardcoded in the `eventColor()` helper in both `MMM-CalendarGrid.js` and `MMM-TodayEvents.js`; edit those two functions to change the keyword or colors.
 
