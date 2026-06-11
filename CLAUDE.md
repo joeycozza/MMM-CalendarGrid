@@ -35,7 +35,7 @@ Two distinct notification systems are in play — don't conflate them:
 
 ## Frontend rendering notes
 
-- `getDom()` dispatches on `getActiveView()` (the `view` config option) to per-view renderers: `renderMonth` / `renderWeek` / `render3Day` / `renderAgenda` / `render2Week`. Adding a view = new renderer + a `case` in the switch + a `.mmm-cg-<view>` CSS modifier (added to the wrapper by `getDom`). `week`/`2week` reuse `buildDayCell` via `buildDayCells`; `3day`/`agenda` use the larger `buildEventRow` instead of pills.
+- `getDom()` dispatches on `getActiveView()` (the `view` config option) to per-view renderers: `renderMonth` / `renderWeek` / `render3Day` / `render5Day` / `renderAgenda` / `render2Week`. Adding a view = new renderer + a `case` in the switch + a `.mmm-cg-<view>` CSS modifier (added to the wrapper by `getDom`). `week`/`2week` reuse `buildDayCell` via `buildDayCells`; `3day`/`5day` share `renderDayCards` (a list of day offsets → cards) and, with `agenda`, use the larger `buildEventRow` instead of pills.
 - `view: "rotate"` cycles `rotateViews` on a `setInterval`. That timer is created **once in `start()` via `setupRotation()` (never in `getDom`)** to avoid stacking intervals across re-renders, and cleared in `stop()`. It is distinct from `updateInterval`, which is the node_helper re-fetch cadence.
 - The grid is built fresh in `getDom()` every `updateDom()` — no diffing, no resize listeners. Responsiveness is pure CSS (`clamp()` + `fr` units in the `.css` files). Tune sizing in CSS, not JS.
 - `buildCells()` pads the month with prev/next-month "other-month" days to fill complete 7-cell rows; `startOnMonday` shifts the day-of-week math.

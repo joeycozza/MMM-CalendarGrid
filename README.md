@@ -77,7 +77,7 @@ Add **both** entries to `~/MagicMirror/config/config.js` inside the `modules: []
     showOtherMonthDays: true,         // show dimmed prev/next month filler days
 
     // View mode — see "View Modes" below (default is "month"; this example rotates)
-    view: "rotate",                   // "month"|"week"|"3day"|"agenda"|"2week"|"rotate"
+    view: "rotate",                   // "month"|"week"|"3day"|"5day"|"agenda"|"2week"|"rotate"
     rotateViews: ["week", "3day", "agenda"], // cycled when view: "rotate"
     rotateInterval: 20 * 1000,        // ms each view stays on screen
     agendaDays: 7,                    // days shown in the agenda view
@@ -107,8 +107,8 @@ Add **both** entries to `~/MagicMirror/config/config.js` inside the `modules: []
 | `maxEventsPerDay` | Number | `5` | Max events shown per day before a "+ X more" label. Applies to `month`, `week`, `2week` day cells and the `3day` cards. (The `agenda` view uses `maxEventsAgenda` instead.) |
 | `startOnMonday` | Boolean | `false` | `true` = week starts Monday. `false` = week starts Sunday. Affects `month`, `week`, and `2week` views. |
 | `showOtherMonthDays` | Boolean | `true` | Whether to show dimmed padding days from the previous and next month (month view only). |
-| `view` | String | `"month"` | Which view to render: `"month"`, `"week"`, `"3day"`, `"agenda"`, `"2week"`, or `"rotate"`. See [View Modes](#view-modes). |
-| `rotateViews` | Array | `["week", "3day", "agenda"]` | List of views to cycle through when `view: "rotate"`. Any of `"month"`, `"week"`, `"3day"`, `"agenda"`, `"2week"`. Needs at least 2 entries (otherwise rotation is skipped). |
+| `view` | String | `"month"` | Which view to render: `"month"`, `"week"`, `"3day"`, `"5day"`, `"agenda"`, `"2week"`, or `"rotate"`. See [View Modes](#view-modes). |
+| `rotateViews` | Array | `["week", "3day", "agenda"]` | List of views to cycle through when `view: "rotate"`. Any of `"month"`, `"week"`, `"3day"`, `"5day"`, `"agenda"`, `"2week"`. Needs at least 2 entries (otherwise rotation is skipped). |
 | `rotateInterval` | Number | `20000` | How long each view stays on screen during rotation, in ms. |
 | `agendaDays` | Number | `7` | Number of days (starting today) the `agenda` view scans for events. |
 | `maxEventsAgenda` | Number | `50` | Maximum total events listed across all days in the `agenda` view. |
@@ -132,6 +132,7 @@ feed — switching is purely a layout change.
 | `"month"` | The full-month grid (the original layout). |
 | `"week"` | The current week as a single row of 7 tall columns — much more readable per day. Honors `startOnMonday`. |
 | `"3day"` | Three large cards: **Yesterday**, **Today**, **Tomorrow**, each listing that day's events in large text. Today is highlighted; yesterday is dimmed. |
+| `"5day"` | Like `3day` but five cards: **Yesterday** through three days out (yesterday, today, tomorrow, +2, +3). Today highlighted; yesterday dimmed. |
 | `"agenda"` | A vertical chronological list of the next `agendaDays` days, grouped by day, in large text. Days with no events are skipped. |
 | `"2week"` | This week plus next week — two rows of 7. A middle ground between week and month. |
 | `"rotate"` | Cycles through the views listed in `rotateViews`, switching every `rotateInterval` ms. |
@@ -152,6 +153,10 @@ feed — switching is purely a layout change.
 **`3day`** — Yesterday / Today / Tomorrow as large cards with big time + title rows.
 
 ![3-day view](screenshots/view-3day.png)
+
+**`5day`** — five day cards (yesterday through +3), same big-card style as `3day`.
+
+![5-day view](screenshots/view-5day.png)
 
 **`agenda`** — chronological list grouped by day, empty days skipped.
 
@@ -204,9 +209,10 @@ All styles are in `MMM-CalendarGrid.css` and `MMM-TodayEvents.css`. Font sizes u
 | `.mmm-cg-pill-text` | Text inside a pill (truncated with ellipsis) |
 | `.mmm-cg-more` | The "+ X more" overflow label |
 | `.mmm-cg-week` / `.mmm-cg-2week` | Wrapper modifiers — set the grid row count for the week / two-week views |
-| `.mmm-cg-card-grid` | The 3-column container for the `3day` view |
-| `.mmm-cg-card` (`.today` / `.past`) | A single day card in the `3day` view |
-| `.mmm-cg-card-header` | The day label inside a `3day` card (e.g. "Today · Jun 10") |
+| `.mmm-cg-card-grid` | The card container for the `3day` / `5day` views (3 or 5 columns) |
+| `.mmm-cg-5day .mmm-cg-card-grid` | Overrides the card grid to 5 columns for the `5day` view |
+| `.mmm-cg-card` (`.today` / `.past`) | A single day card in the `3day` / `5day` views |
+| `.mmm-cg-card-header` | The day label inside a card (e.g. "Today · Jun 10") |
 | `.mmm-cg-card-event` | A large event row — used in both `3day` cards and the `agenda` list; `border-left-color` set inline per calendar color |
 | `.mmm-cg-card-time` | Time label in a large event row (or "All day") |
 | `.mmm-cg-card-title` | Event title in a large event row |

@@ -141,13 +141,17 @@
   grid-template-rows: repeat(2, 1fr);
 }
 
-/* ── View: 3day (three big cards) ────────────────────────────────────── */
+/* ── View: 3day / 5day (big day cards) ───────────────────────────────── */
 .mmm-cg-card-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   flex: 1;
   min-height: 0;
   gap: 8px;
+}
+
+.mmm-cg-5day .mmm-cg-card-grid {
+  grid-template-columns: repeat(5, 1fr);
 }
 
 .mmm-cg-card {

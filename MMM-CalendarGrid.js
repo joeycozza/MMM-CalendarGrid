@@ -5,7 +5,7 @@ Module.register("MMM-CalendarGrid", {
     maxEventsPerDay: 5,
     startOnMonday: false,
     showOtherMonthDays: true,
-    view: "month",                          // month | week | 3day | agenda | 2week | rotate
+    view: "month",                          // month | week | 3day | 5day | agenda | 2week | rotate
     rotateViews: ["week", "3day", "agenda"],
     rotateInterval: 20 * 1000,
     agendaDays: 7,
@@ -76,6 +76,7 @@ Module.register("MMM-CalendarGrid", {
     switch (view) {
       case "week":   this.renderWeek(wrapper, now);   break;
       case "3day":   this.render3Day(wrapper, now);   break;
+      case "5day":   this.render5Day(wrapper, now);   break;
       case "agenda": this.renderAgenda(wrapper, now); break;
       case "2week":  this.render2Week(wrapper, now);  break;
       default:       this.renderMonth(wrapper, now);  break; // "month"
@@ -190,20 +191,33 @@ Module.register("MMM-CalendarGrid", {
     this.renderWeekSpan(wrapper, now, 14);
   },
 
-  // ── 3-day (yesterday / today / tomorrow) ───────────────────────────────
-  render3Day(wrapper, now) {
+  // ── Day cards (3-day / 5-day) ──────────────────────────────────────────
+  // Renders one big card per day offset. -1/0/1 get Yesterday/Today/Tomorrow
+  // labels; other offsets use the weekday name.
+  renderDayCards(wrapper, now, offsets) {
     const grid = document.createElement("div");
     grid.className = "mmm-cg-card-grid";
 
-    const mk = (offset, label) => {
+    const weekday = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    offsets.forEach((offset) => {
       const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset);
+      let label;
+      if (offset === -1) label = "Yesterday";
+      else if (offset === 0) label = "Today";
+      else if (offset === 1) label = "Tomorrow";
+      else label = weekday[date.getDay()];
       grid.appendChild(this.build3DayCard(date, label, now));
-    };
-    mk(-1, "Yesterday");
-    mk(0, "Today");
-    mk(1, "Tomorrow");
+    });
 
     wrapper.appendChild(grid);
+  },
+
+  render3Day(wrapper, now) {
+    this.renderDayCards(wrapper, now, [-1, 0, 1]);
+  },
+
+  render5Day(wrapper, now) {
+    this.renderDayCards(wrapper, now, [-1, 0, 1, 2, 3]);
   },
 
   build3DayCard(date, label, now) {
