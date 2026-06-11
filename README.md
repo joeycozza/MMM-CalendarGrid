@@ -76,7 +76,7 @@ Add **both** entries to `~/MagicMirror/config/config.js` inside the `modules: []
     startOnMonday: false,             // true for Mon–Sun week layout
     showOtherMonthDays: true,         // show dimmed prev/next month filler days
 
-    // View mode — see "View Modes" below
+    // View mode — see "View Modes" below (default is "month"; this example rotates)
     view: "rotate",                   // "month"|"week"|"3day"|"agenda"|"2week"|"rotate"
     rotateViews: ["week", "3day", "agenda"], // cycled when view: "rotate"
     rotateInterval: 20 * 1000,        // ms each view stays on screen
@@ -104,11 +104,11 @@ Add **both** entries to `~/MagicMirror/config/config.js` inside the `modules: []
 |---|---|---|---|
 | `calendars` | Array | `[]` | Array of `{ url, color, name }` objects. `url` is a valid iCal/ICS URL. `color` is any CSS hex color. `name` is a display label. |
 | `updateInterval` | Number | `1800000` | How often to re-fetch feeds, in ms. Default is 30 minutes. |
-| `maxEventsPerDay` | Number | `5` | Max event pills shown per day cell. Additional events show as "+ X more". |
+| `maxEventsPerDay` | Number | `5` | Max events shown per day before a "+ X more" label. Applies to `month`, `week`, `2week` day cells and the `3day` cards. (The `agenda` view uses `maxEventsAgenda` instead.) |
 | `startOnMonday` | Boolean | `false` | `true` = week starts Monday. `false` = week starts Sunday. Affects `month`, `week`, and `2week` views. |
 | `showOtherMonthDays` | Boolean | `true` | Whether to show dimmed padding days from the previous and next month (month view only). |
 | `view` | String | `"month"` | Which view to render: `"month"`, `"week"`, `"3day"`, `"agenda"`, `"2week"`, or `"rotate"`. See [View Modes](#view-modes). |
-| `rotateViews` | Array | `["week", "3day", "agenda"]` | List of views to cycle through when `view: "rotate"`. Needs at least 2 entries. |
+| `rotateViews` | Array | `["week", "3day", "agenda"]` | List of views to cycle through when `view: "rotate"`. Any of `"month"`, `"week"`, `"3day"`, `"agenda"`, `"2week"`. Needs at least 2 entries (otherwise rotation is skipped). |
 | `rotateInterval` | Number | `20000` | How long each view stays on screen during rotation, in ms. |
 | `agendaDays` | Number | `7` | Number of days (starting today) the `agenda` view scans for events. |
 | `maxEventsAgenda` | Number | `50` | Maximum total events listed across all days in the `agenda` view. |
