@@ -8,7 +8,7 @@ Built for full CSS control and responsiveness — works on any screen size witho
 
 - **Multiple view modes** — `month`, `week`, `3day` (yesterday/today/tomorrow cards), `agenda` (next N days), and `2week`, with optional auto-rotation between them
 - Solid, color-filled event pills and cards (text auto-contrasts black/white for legibility)
-- Per-calendar color coding
+- Per-calendar color coding, plus a title-based color rule (events starting with "joey" keep their color; all others render red)
 - All-day and timed events
 - Multi-day events shown as repeated pills in each spanned day
 - Static "+ X more" overflow label when a day exceeds `maxEventsPerDay`
@@ -186,6 +186,17 @@ different fixed `view` values (e.g. a `month` overview plus a `3day` close-up).
 
 ---
 
+## Event colors
+
+Event colors follow a title-based rule rather than only the calendar color:
+
+- If an event's **title starts with "joey"** (case-insensitive), it keeps its calendar `color`.
+- Every other event is shown in **red** (`#c0392b`), with white text for contrast.
+
+This applies everywhere events render color — month/week/2week pills, the `3day`/`5day` cards, the `agenda` list, and the `MMM-TodayEvents` sidebar. The rule is hardcoded in the `eventColor()` helper in both `MMM-CalendarGrid.js` and `MMM-TodayEvents.js`; edit those two functions to change the keyword or colors.
+
+---
+
 ## CSS Customization
 
 All styles are in `MMM-CalendarGrid.css` and `MMM-TodayEvents.css`. Font sizes use `clamp(min, preferred, max)` so they scale automatically — adjust the values to tune for your screen size.
@@ -204,7 +215,7 @@ All styles are in `MMM-CalendarGrid.css` and `MMM-TodayEvents.css`. Font sizes u
 | `.mmm-cg-cell.today` | Today's cell — date number gets the blue circle |
 | `.mmm-cg-cell.other-month` | Prev/next month filler cells (dimmed) |
 | `.mmm-cg-date-num` | The date number inside each cell |
-| `.mmm-cg-pill` | An event pill — filled solid with the calendar color (`background-color` set inline); the text `color` is set inline to black or white, whichever has better contrast against that fill |
+| `.mmm-cg-pill` | An event pill — filled solid with the event's resolved color (see [Event colors](#event-colors), `background-color` set inline); the text `color` is set inline to black or white, whichever has better contrast against that fill |
 | `.mmm-cg-pill.all-day` | All-day event pill variant |
 | `.mmm-cg-pill-text` | Text inside a pill (truncated with ellipsis) |
 | `.mmm-cg-pill-time` | The leading time prefix inside a timed pill (e.g. "5pm · "); slightly recessed so the title reads first |
@@ -214,7 +225,7 @@ All styles are in `MMM-CalendarGrid.css` and `MMM-TodayEvents.css`. Font sizes u
 | `.mmm-cg-5day .mmm-cg-card-grid` | Overrides the card grid to 5 columns for the `5day` view |
 | `.mmm-cg-card` (`.today` / `.past`) | A single day card in the `3day` / `5day` views |
 | `.mmm-cg-card-header` | The day label inside a card (e.g. "Today · Jun 10") |
-| `.mmm-cg-card-event` | A large event row. In the `agenda` list it gets a colored `border-left`. In the `3day` / `5day` cards it also gets `.filled` — a solid color block (`background-color` + auto-contrast text `color` set inline), like the month pills. |
+| `.mmm-cg-card-event` | A large event row. In the `agenda` list it gets a colored `border-left`. In the `3day` / `5day` cards it also gets `.filled` — a solid color block (`background-color` + auto-contrast text `color` set inline), like the month pills. Color follows the [Event colors](#event-colors) rule. |
 | `.mmm-cg-card-event.filled` | The solid color-block variant used by the `3day` / `5day` cards |
 | `.mmm-cg-card-time` | Time label in a large event row (or "All day") |
 | `.mmm-cg-card-title` | Event title in a large event row. `3day` uses larger text (`.mmm-cg-3day` scope) than `5day`. |
@@ -230,7 +241,7 @@ All styles are in `MMM-CalendarGrid.css` and `MMM-TodayEvents.css`. Font sizes u
 | `.mmm-te-wrapper` | Outer module container |
 | `.mmm-te-header` | "TODAY" title |
 | `.mmm-te-list` | Event list container |
-| `.mmm-te-event` | Individual event row — `border-left-color` set inline per calendar color |
+| `.mmm-te-event` | Individual event row — `border-left-color` set inline per the [Event colors](#event-colors) rule |
 | `.mmm-te-time` | Time label (e.g. "9am") |
 | `.mmm-te-title` | Event title in large text |
 | `.mmm-te-empty` | "No events today" message |

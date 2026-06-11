@@ -74,7 +74,7 @@ Module.register("MMM-TodayEvents", {
   buildEventRow(event) {
     const row = document.createElement("div");
     row.className = "mmm-te-event";
-    row.style.borderLeftColor = event.color;
+    row.style.borderLeftColor = this.eventColor(event);
 
     const time = document.createElement("div");
     time.className = "mmm-te-time";
@@ -99,5 +99,12 @@ Module.register("MMM-TodayEvents", {
     const ampm = h >= 12 ? "pm" : "am";
     h = h % 12 || 12;
     return m === 0 ? `${h}${ampm}` : `${h}:${String(m).padStart(2, "0")}${ampm}`;
+  },
+
+  // Mirrors MMM-CalendarGrid.eventColor: titles starting with "joey" keep
+  // their calendar color; everything else is shown in red.
+  eventColor(event) {
+    const title = (event.title || "").trim().toLowerCase();
+    return title.startsWith("joey") ? event.color : "#c0392b";
   },
 });

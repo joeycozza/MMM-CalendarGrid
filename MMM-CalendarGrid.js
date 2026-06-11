@@ -256,12 +256,13 @@ Module.register("MMM-CalendarGrid", {
   buildEventRow(event, filled) {
     const row = document.createElement("div");
     row.className = "mmm-cg-card-event";
+    const color = this.eventColor(event);
     if (filled) {
       row.classList.add("filled");
-      row.style.backgroundColor = event.color;
-      row.style.color = this.getContrastText(event.color);
+      row.style.backgroundColor = color;
+      row.style.color = this.getContrastText(color);
     } else {
-      row.style.borderLeftColor = event.color;
+      row.style.borderLeftColor = color;
     }
 
     const time = document.createElement("div");
@@ -423,8 +424,9 @@ Module.register("MMM-CalendarGrid", {
     if (event.allDay) pill.classList.add("all-day");
 
     // Solid fill with auto-contrast text so pills read as scannable chips
-    pill.style.backgroundColor = event.color;
-    pill.style.color = this.getContrastText(event.color);
+    const color = this.eventColor(event);
+    pill.style.backgroundColor = color;
+    pill.style.color = this.getContrastText(color);
 
     const text = document.createElement("span");
     text.className = "mmm-cg-pill-text";
@@ -455,6 +457,14 @@ Module.register("MMM-CalendarGrid", {
     const g = parseInt(clean.substring(2, 4), 16);
     const b = parseInt(clean.substring(4, 6), 16);
     return `rgba(${r},${g},${b},${alpha})`;
+  },
+
+  // Color rule: events whose title starts with "joey" (case-insensitive)
+  // keep their calendar color; everything else is shown in red (white text
+  // reads well on it).
+  eventColor(event) {
+    const title = (event.title || "").trim().toLowerCase();
+    return title.startsWith("joey") ? event.color : "#c0392b";
   },
 
   // Pick black or white text for legibility against a solid hex fill (YIQ luminance).
