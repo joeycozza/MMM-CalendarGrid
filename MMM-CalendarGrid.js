@@ -5,15 +5,46 @@ Module.register("MMM-CalendarGrid", {
     maxEventsPerDay: 5,
     startOnMonday: false,
     showOtherMonthDays: true,
+    view: "month",                          // month | week | 3day | agenda | 2week | rotate
+    rotateViews: ["week", "3day", "agenda"],
+    rotateInterval: 20 * 1000,
+    agendaDays: 7,
+    maxEventsAgenda: 50,
   },
 
   start() {
     this.events = [];
     this.loaded = false;
+    this.rotateIndex = 0;
+    this.rotateTimer = null;
     this.sendSocketNotification("GET_CALENDAR_EVENTS", {
       calendars: this.config.calendars,
       updateInterval: this.config.updateInterval,
     });
+    this.setupRotation();
+  },
+
+  // Cycle the active view on a timer when view === "rotate".
+  // Created once from start() (never from getDom) so re-renders can't stack intervals.
+  setupRotation() {
+    if (this.rotateTimer) {
+      clearInterval(this.rotateTimer);
+      this.rotateTimer = null;
+    }
+    if (this.config.view !== "rotate") return;
+    const views = this.config.rotateViews;
+    if (!Array.isArray(views) || views.length < 2) return;
+    this.rotateTimer = setInterval(() => {
+      this.rotateIndex = (this.rotateIndex + 1) % views.length;
+      this.updateDom(300);
+    }, this.config.rotateInterval);
+  },
+
+  stop() {
+    if (this.rotateTimer) {
+      clearInterval(this.rotateTimer);
+      this.rotateTimer = null;
+    }
   },
 
   getStyles() {
@@ -39,18 +70,34 @@ Module.register("MMM-CalendarGrid", {
     }
 
     const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
+    const view = this.getActiveView();
+    wrapper.classList.add("mmm-cg-" + view); // CSS hook — always a leaf view, never "rotate"
 
-    // Month/year header
-    const header = document.createElement("div");
-    header.className = "mmm-cg-header";
-    const monthNames = ["January","February","March","April","May","June",
-                        "July","August","September","October","November","December"];
-    header.textContent = `${monthNames[month]} ${year}`;
-    wrapper.appendChild(header);
+    switch (view) {
+      case "week":   this.renderWeek(wrapper, now);   break;
+      case "3day":   this.render3Day(wrapper, now);   break;
+      case "agenda": this.renderAgenda(wrapper, now); break;
+      case "2week":  this.render2Week(wrapper, now);  break;
+      default:       this.renderMonth(wrapper, now);  break; // "month"
+    }
+    return wrapper;
+  },
 
-    // Day-of-week labels
+  // Resolve the view to render now. When rotating, pick from rotateViews by index.
+  getActiveView() {
+    if (this.config.view !== "rotate") return this.config.view;
+    const v = this.config.rotateViews;
+    if (!Array.isArray(v) || v.length === 0) return "month";
+    return v[this.rotateIndex % v.length];
+  },
+
+  monthName(i) {
+    return ["January","February","March","April","May","June",
+            "July","August","September","October","November","December"][i];
+  },
+
+  // Shared day-of-week label row (month/week/2week), honoring startOnMonday.
+  buildDayLabels() {
     const dayLabels = document.createElement("div");
     dayLabels.className = "mmm-cg-day-labels";
     const days = this.config.startOnMonday
@@ -62,19 +109,203 @@ Module.register("MMM-CalendarGrid", {
       label.textContent = d;
       dayLabels.appendChild(label);
     });
-    wrapper.appendChild(dayLabels);
+    return dayLabels;
+  },
 
-    // Build grid of day cells
+  // ── Month ──────────────────────────────────────────────────────────────
+  renderMonth(wrapper, now) {
+    const year = now.getFullYear();
+    const month = now.getMonth();
+
+    const header = document.createElement("div");
+    header.className = "mmm-cg-header";
+    header.textContent = `${this.monthName(month)} ${year}`;
+    wrapper.appendChild(header);
+
+    wrapper.appendChild(this.buildDayLabels());
+
     const grid = document.createElement("div");
     grid.className = "mmm-cg-grid";
-
-    const cells = this.buildCells(year, month);
-    cells.forEach((cell) => {
+    this.buildCells(year, month).forEach((cell) => {
       grid.appendChild(this.buildDayCell(cell, now));
     });
+    wrapper.appendChild(grid);
+  },
+
+  // ── Week / 2-week ──────────────────────────────────────────────────────
+  startOfWeek(now) {
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // midnight today
+    let dow = d.getDay(); // 0=Sun
+    if (this.config.startOnMonday) dow = dow === 0 ? 6 : dow - 1;
+    d.setDate(d.getDate() - dow);
+    return d;
+  },
+
+  // n sequential Date objects starting at `start` (date arithmetic rolls over months/years).
+  sequentialDates(start, n) {
+    const out = [];
+    for (let i = 0; i < n; i++) {
+      out.push(new Date(start.getFullYear(), start.getMonth(), start.getDate() + i));
+    }
+    return out;
+  },
+
+  buildDayCells(dates, now) {
+    return dates.map((date) => this.buildDayCell({ date, currentMonth: true }, now));
+  },
+
+  formatDayMonth(date) {
+    return `${this.monthName(date.getMonth()).slice(0, 3)} ${date.getDate()}`;
+  },
+
+  formatWeekRange(start, end) {
+    if (start.getMonth() === end.getMonth()) {
+      return `${this.formatDayMonth(start)} – ${end.getDate()}`;
+    }
+    return `${this.formatDayMonth(start)} – ${this.formatDayMonth(end)}`;
+  },
+
+  renderWeekSpan(wrapper, now, numDays) {
+    const start = this.startOfWeek(now);
+    const dates = this.sequentialDates(start, numDays);
+
+    const header = document.createElement("div");
+    header.className = "mmm-cg-header";
+    header.textContent = this.formatWeekRange(start, dates[dates.length - 1]);
+    wrapper.appendChild(header);
+
+    wrapper.appendChild(this.buildDayLabels());
+
+    const grid = document.createElement("div");
+    grid.className = "mmm-cg-grid";
+    this.buildDayCells(dates, now).forEach((cell) => grid.appendChild(cell));
+    wrapper.appendChild(grid);
+  },
+
+  renderWeek(wrapper, now) {
+    this.renderWeekSpan(wrapper, now, 7);
+  },
+
+  render2Week(wrapper, now) {
+    this.renderWeekSpan(wrapper, now, 14);
+  },
+
+  // ── 3-day (yesterday / today / tomorrow) ───────────────────────────────
+  render3Day(wrapper, now) {
+    const grid = document.createElement("div");
+    grid.className = "mmm-cg-card-grid";
+
+    const mk = (offset, label) => {
+      const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset);
+      grid.appendChild(this.build3DayCard(date, label, now));
+    };
+    mk(-1, "Yesterday");
+    mk(0, "Today");
+    mk(1, "Tomorrow");
 
     wrapper.appendChild(grid);
-    return wrapper;
+  },
+
+  build3DayCard(date, label, now) {
+    const card = document.createElement("div");
+    card.className = "mmm-cg-card";
+
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    if (date.getTime() === startOfToday.getTime()) card.classList.add("today");
+    else if (date < startOfToday) card.classList.add("past");
+
+    const header = document.createElement("div");
+    header.className = "mmm-cg-card-header";
+    header.textContent = `${label} · ${this.formatDayMonth(date)}`;
+    card.appendChild(header);
+
+    const dayEvents = this.getEventsForDay(date);
+    const maxShow = this.config.maxEventsPerDay;
+    const visible = dayEvents.slice(0, maxShow);
+    const overflow = dayEvents.length - visible.length;
+
+    visible.forEach((event) => card.appendChild(this.buildEventRow(event)));
+
+    if (overflow > 0) {
+      const more = document.createElement("div");
+      more.className = "mmm-cg-more";
+      more.textContent = `+${overflow} more`;
+      card.appendChild(more);
+    }
+
+    return card;
+  },
+
+  // Large time+title row, shared by 3day cards and the agenda list.
+  buildEventRow(event) {
+    const row = document.createElement("div");
+    row.className = "mmm-cg-card-event";
+    row.style.borderLeftColor = event.color;
+
+    const time = document.createElement("div");
+    time.className = "mmm-cg-card-time";
+    time.textContent = event.allDay ? "All day" : this.formatTime(new Date(event.start));
+
+    const title = document.createElement("div");
+    title.className = "mmm-cg-card-title";
+    title.textContent = event.title;
+
+    row.appendChild(time);
+    row.appendChild(title);
+    return row;
+  },
+
+  // ── Agenda (next N days, grouped) ──────────────────────────────────────
+  renderAgenda(wrapper, now) {
+    const header = document.createElement("div");
+    header.className = "mmm-cg-header";
+    header.textContent = "Agenda";
+    wrapper.appendChild(header);
+
+    wrapper.appendChild(this.buildAgendaList(now));
+  },
+
+  buildAgendaList(now) {
+    const list = document.createElement("div");
+    list.className = "mmm-cg-agenda-list";
+
+    const weekday = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    let shown = 0;
+    const cap = this.config.maxEventsAgenda;
+
+    for (let i = 0; i < this.config.agendaDays && shown < cap; i++) {
+      const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
+      const dayEvents = this.getEventsForDay(date);
+      if (dayEvents.length === 0) continue;
+
+      const dayBlock = document.createElement("div");
+      dayBlock.className = "mmm-cg-agenda-day";
+
+      const dateHeader = document.createElement("div");
+      dateHeader.className = "mmm-cg-agenda-date";
+      let labelPrefix = "";
+      if (i === 0) labelPrefix = "Today · ";
+      else if (i === 1) labelPrefix = "Tomorrow · ";
+      dateHeader.textContent = `${labelPrefix}${weekday[date.getDay()]} ${this.formatDayMonth(date)}`;
+      dayBlock.appendChild(dateHeader);
+
+      for (const event of dayEvents) {
+        if (shown >= cap) break;
+        dayBlock.appendChild(this.buildEventRow(event));
+        shown++;
+      }
+
+      list.appendChild(dayBlock);
+    }
+
+    if (shown === 0) {
+      const empty = document.createElement("div");
+      empty.className = "mmm-cg-empty";
+      empty.textContent = "No upcoming events";
+      list.appendChild(empty);
+    }
+
+    return list;
   },
 
   buildCells(year, month) {

@@ -6,6 +6,7 @@ Built for full CSS control and responsiveness — works on any screen size witho
 
 ## Features
 
+- **Multiple view modes** — `month`, `week`, `3day` (yesterday/today/tomorrow cards), `agenda` (next N days), and `2week`, with optional auto-rotation between them
 - Month grid with colored event pills per day cell
 - Per-calendar color coding
 - All-day and timed events
@@ -74,6 +75,13 @@ Add **both** entries to `~/MagicMirror/config/config.js` inside the `modules: []
     maxEventsPerDay: 5,               // shows "+X more" beyond this
     startOnMonday: false,             // true for Mon–Sun week layout
     showOtherMonthDays: true,         // show dimmed prev/next month filler days
+
+    // View mode — see "View Modes" below
+    view: "rotate",                   // "month"|"week"|"3day"|"agenda"|"2week"|"rotate"
+    rotateViews: ["week", "3day", "agenda"], // cycled when view: "rotate"
+    rotateInterval: 20 * 1000,        // ms each view stays on screen
+    agendaDays: 7,                    // days shown in the agenda view
+    maxEventsAgenda: 50,              // total event cap in the agenda view
   },
 },
 {
@@ -97,8 +105,13 @@ Add **both** entries to `~/MagicMirror/config/config.js` inside the `modules: []
 | `calendars` | Array | `[]` | Array of `{ url, color, name }` objects. `url` is a valid iCal/ICS URL. `color` is any CSS hex color. `name` is a display label. |
 | `updateInterval` | Number | `1800000` | How often to re-fetch feeds, in ms. Default is 30 minutes. |
 | `maxEventsPerDay` | Number | `5` | Max event pills shown per day cell. Additional events show as "+ X more". |
-| `startOnMonday` | Boolean | `false` | `true` = week starts Monday. `false` = week starts Sunday. |
-| `showOtherMonthDays` | Boolean | `true` | Whether to show dimmed padding days from the previous and next month. |
+| `startOnMonday` | Boolean | `false` | `true` = week starts Monday. `false` = week starts Sunday. Affects `month`, `week`, and `2week` views. |
+| `showOtherMonthDays` | Boolean | `true` | Whether to show dimmed padding days from the previous and next month (month view only). |
+| `view` | String | `"month"` | Which view to render: `"month"`, `"week"`, `"3day"`, `"agenda"`, `"2week"`, or `"rotate"`. See [View Modes](#view-modes). |
+| `rotateViews` | Array | `["week", "3day", "agenda"]` | List of views to cycle through when `view: "rotate"`. Needs at least 2 entries. |
+| `rotateInterval` | Number | `20000` | How long each view stays on screen during rotation, in ms. |
+| `agendaDays` | Number | `7` | Number of days (starting today) the `agenda` view scans for events. |
+| `maxEventsAgenda` | Number | `50` | Maximum total events listed across all days in the `agenda` view. |
 
 ### MMM-TodayEvents
 
@@ -106,6 +119,40 @@ Add **both** entries to `~/MagicMirror/config/config.js` inside the `modules: []
 |---|---|---|---|
 | `title` | String | `"TODAY"` | Header label displayed above the event list. |
 | `maxEvents` | Number | `10` | Maximum number of today's events to display. |
+
+---
+
+## View Modes
+
+Set `view` to control how the calendar is rendered. All views read the same event
+feed — switching is purely a layout change.
+
+| `view` | What it shows |
+|---|---|
+| `"month"` | The full-month grid (the original layout). |
+| `"week"` | The current week as a single row of 7 tall columns — much more readable per day. Honors `startOnMonday`. |
+| `"3day"` | Three large cards: **Yesterday**, **Today**, **Tomorrow**, each listing that day's events in large text. Today is highlighted; yesterday is dimmed. |
+| `"agenda"` | A vertical chronological list of the next `agendaDays` days, grouped by day, in large text. Days with no events are skipped. |
+| `"2week"` | This week plus next week — two rows of 7. A middle ground between week and month. |
+| `"rotate"` | Cycles through the views listed in `rotateViews`, switching every `rotateInterval` ms. |
+
+**Rotation example** — cycle week → 3day → agenda, 20 seconds each:
+
+```js
+config: {
+  view: "rotate",
+  rotateViews: ["week", "3day", "agenda"],
+  rotateInterval: 20 * 1000,
+  calendars: [ /* ... */ ],
+}
+```
+
+You can also run two `MMM-CalendarGrid` instances in different positions with
+different fixed `view` values (e.g. a `month` overview plus a `3day` close-up).
+
+> **Note:** the backend fetches a 3-month window (previous → next month), so an
+> `agendaDays` value that reaches beyond the end of next month may show empty
+> tail days. The default (`7`) is always covered.
 
 ---
 
@@ -120,7 +167,7 @@ All styles are in `MMM-CalendarGrid.css` and `MMM-TodayEvents.css`. Font sizes u
 | Class | What it styles |
 |---|---|
 | `.mmm-cg-wrapper` | Outer module container |
-| `.mmm-cg-header` | Month/year title (e.g. "June 2026") |
+| `.mmm-cg-header` | Title row — month/year ("June 2026"), week range ("Jun 7 – 13"), or "Agenda" depending on view |
 | `.mmm-cg-day-label` | Day-of-week header labels (Sun, Mon, …) |
 | `.mmm-cg-grid` | The 7-column CSS Grid container |
 | `.mmm-cg-cell` | Individual day cell |
@@ -131,6 +178,17 @@ All styles are in `MMM-CalendarGrid.css` and `MMM-TodayEvents.css`. Font sizes u
 | `.mmm-cg-pill.all-day` | All-day event pill variant |
 | `.mmm-cg-pill-text` | Text inside a pill (truncated with ellipsis) |
 | `.mmm-cg-more` | The "+ X more" overflow label |
+| `.mmm-cg-week` / `.mmm-cg-2week` | Wrapper modifiers — set the grid row count for the week / two-week views |
+| `.mmm-cg-card-grid` | The 3-column container for the `3day` view |
+| `.mmm-cg-card` (`.today` / `.past`) | A single day card in the `3day` view |
+| `.mmm-cg-card-header` | The day label inside a `3day` card (e.g. "Today · Jun 10") |
+| `.mmm-cg-card-event` | A large event row — used in both `3day` cards and the `agenda` list; `border-left-color` set inline per calendar color |
+| `.mmm-cg-card-time` | Time label in a large event row (or "All day") |
+| `.mmm-cg-card-title` | Event title in a large event row |
+| `.mmm-cg-agenda-list` | The `agenda` view list container |
+| `.mmm-cg-agenda-day` | One day group in the agenda |
+| `.mmm-cg-agenda-date` | The day header in the agenda (e.g. "Today · Wed Jun 10") |
+| `.mmm-cg-empty` | "No upcoming events" message (agenda view) |
 
 **MMM-TodayEvents:**
 
