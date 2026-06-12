@@ -55,9 +55,55 @@ Module.register("MMM-CalendarGrid", {
     if (notification === "CALENDAR_EVENTS") {
       this.events = payload;
       this.loaded = true;
+      this.logAllDayInventory();
       this.updateDom(300);
       this.sendNotification("CALENDAR_EVENTS", payload);
     }
+  },
+
+  // Structured dump of every all-day event — copy/paste this console block to
+  // an AI to diagnose wrong-day placement. Fires once per data refresh, not per render.
+  logAllDayInventory() {
+    const tzName = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const tzOffset = -new Date().getTimezoneOffset() / 60;
+    const tzLabel = `UTC${tzOffset >= 0 ? "+" : ""}${tzOffset}`;
+    const now = new Date();
+    const allDayEvs = this.events.filter((ev) => ev.allDay);
+    const line = "═".repeat(56);
+
+    console.log(`\n[CG-DEBUG] ╔${line}╗`);
+    console.log(`[CG-DEBUG] ║  ALL-DAY EVENT INVENTORY  (${allDayEvs.length} events)`);
+    console.log(`[CG-DEBUG] ║  Browser timezone : ${tzName} (${tzLabel})`);
+    console.log(`[CG-DEBUG] ║  Current time     : ${now.toISOString()}  →  local ${now.toDateString()}`);
+    console.log(`[CG-DEBUG] ║`);
+    console.log(`[CG-DEBUG] ║  HOW MATCHING WORKS`);
+    console.log(`[CG-DEBUG] ║  An event appears on calendar day D when:`);
+    console.log(`[CG-DEBUG] ║    new Date(ev.start) <= D_end (23:59:59 local)`);
+    console.log(`[CG-DEBUG] ║    new Date(ev.end)   >= D_start (00:00:00 local)`);
+    console.log(`[CG-DEBUG] ║  All-day ends are stored as last-ms of the final day`);
+    console.log(`[CG-DEBUG] ║  (ICS DTEND is exclusive, node_helper subtracts 1ms).`);
+    console.log(`[CG-DEBUG] ╠${line}╣`);
+
+    if (allDayEvs.length === 0) {
+      console.log(`[CG-DEBUG] ║  (no all-day events in payload)`);
+    } else {
+      allDayEvs.forEach((ev, i) => {
+        const start = new Date(ev.start);
+        const end   = new Date(ev.end);
+        const fmt = (d) =>
+          `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+        console.log(`[CG-DEBUG] ║`);
+        console.log(`[CG-DEBUG] ║  [${String(i + 1).padStart(2)}] "${ev.title}"  —  ${ev.calendarName}`);
+        console.log(`[CG-DEBUG] ║       start ISO   : ${ev.start}`);
+        console.log(`[CG-DEBUG] ║       start local : ${start.toDateString()} @ ${start.toLocaleTimeString()}  (${fmt(start)})`);
+        console.log(`[CG-DEBUG] ║       end ISO     : ${ev.end}`);
+        console.log(`[CG-DEBUG] ║       end local   : ${end.toDateString()} @ ${end.toLocaleTimeString()}  (${fmt(end)})`);
+        console.log(`[CG-DEBUG] ║       expected on : ${fmt(start)}  through  ${fmt(end)}`);
+      });
+    }
+
+    console.log(`[CG-DEBUG] ╚${line}╝\n`);
   },
 
   getDom() {
@@ -415,8 +461,12 @@ Module.register("MMM-CalendarGrid", {
       const start = new Date(ev.start);
       const end   = new Date(ev.end);
       const hit = start <= dayEnd && end >= dayStart;
-      if (ev.allDay) {
-        console.log(`[CG-DEBUG getEventsForDay] day=${date.toDateString()} | "${ev.title}" start=${ev.start} end=${ev.end} | parsed start=${start.toLocaleString()} end=${end.toLocaleString()} | dayStart=${dayStart.toLocaleString()} dayEnd=${dayEnd.toLocaleString()} | match=${hit}`);
+      if (ev.allDay && hit) {
+        console.log(
+          `[CG-DEBUG] PLACED "${ev.title}" → ${date.toDateString()}` +
+          ` | start: ${ev.start} (local ${start.toDateString()})` +
+          ` | end: ${ev.end} (local ${end.toDateString()})`
+        );
       }
       return hit;
     });

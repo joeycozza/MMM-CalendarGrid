@@ -308,6 +308,13 @@ The node_helper broadcasts an array of event objects with this shape:
 - Confirm `MMM-CalendarGrid` is also in your `config.js` and loaded — it owns the node_helper that broadcasts data
 - Both modules must be in the same folder (`MMM-CalendarGrid/`)
 
+**All-day event appears on the wrong day**
+- Open the browser dev tools (Electron: `Ctrl+Shift+I`, or run MM2 with `ELECTRON_ENABLE_LOGGING=true npm start`)
+- Filter the console by `[CG-DEBUG]`
+- On each data refresh a structured block is logged — look for the `╔═══ ALL-DAY EVENT INVENTORY ═══╗` section. It shows every all-day event's raw ISO start/end strings, their local date interpretation, and the browser's timezone/UTC offset.
+- Below that, each `[CG-DEBUG] PLACED` line shows exactly which calendar cell an event was placed on.
+- Copy the inventory block plus the PLACED lines and paste them to an AI to diagnose timezone or off-by-one issues.
+
 **Updating**
 ```bash
 cd ~/MagicMirror/modules/MMM-CalendarGrid
